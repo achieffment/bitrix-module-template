@@ -47,6 +47,9 @@ class chieff_books extends CModule {
         // Поля заполняются в переменных класса для удобства работы
         $this->MODULE_ID = "chieff.books"; // Имя модуля
 
+        // Переменная пути до папки с компонентами, для опциональной установки в папку local
+        $this->COMPONENTS_PATH = $_SERVER["DOCUMENT_ROOT"] . "/local/components";
+
         $this->MODULE_VERSION = $arModuleVersion["VERSION"];
         $this->MODULE_VERSION_DATE = $arModuleVersion["VERSION_DATE"];
         $this->MODULE_NAME = Loc::getMessage("CHIEFF_BOOKS_MODULE_NAME");
@@ -149,6 +152,36 @@ class chieff_books extends CModule {
         return true;
     }
 
+    // Опциональная установка в папку local
+    function installFilesLocal() {
+        $this->unInstallFiles();
+        $resMsg = "";
+        $res = CopyDirFiles(
+            __DIR__ . "/admin",
+            $_SERVER["DOCUMENT_ROOT"] . "/bitrix/admin",
+            true,
+            true
+        );
+        if (!$res)
+            $resMsg = Loc::getMessage("CHIEFF_CURRENCIES_INSTALL_ERROR_FILES_ADM");
+        if (!is_dir($this->COMPONENTS_PATH))
+            mkdir($this->COMPONENTS_PATH, 0777, true);
+        $res = CopyDirFiles(
+            __DIR__ . "/components",
+            $this->COMPONENTS_PATH,
+            true,
+            true
+        );
+        if (!$res)
+            $resMsg = ($resMsg) ? $resMsg . "; " . Loc::getMessage("CHIEFF_CURRENCIES_INSTALL_ERROR_FILES_COM") : Loc::getMessage("CHIEFF_CURRENCIES_INSTALL_ERROR_FILES_COM");
+        if ($resMsg) {
+            $this->setResponse(false, $resMsg);
+            return false;
+        }
+        $this->setResponse(true);
+        return true;
+    }
+
     // Установка агентов
     function installAgents() {
         \CAgent::AddAgent(
@@ -172,9 +205,8 @@ class chieff_books extends CModule {
         $this->installDB();
         $this->installEvents();
         $this->installAgents();
-        if (!$this->installFiles()) {
+        if (!$this->installFiles())
             $APPLICATION->ThrowException($this->arResponse["MESSAGE"]);
-        }
         if (file_exists($_SERVER["DOCUMENT_ROOT"] . "/local/modules/chieff.books/install/step.php"))
             $APPLICATION->IncludeAdminFile(Loc::getMessage("CHIEFF_BOOKS_INSTALL_TITLE"), $_SERVER["DOCUMENT_ROOT"] . "/local/modules/chieff.books/install/step.php");
         else
@@ -193,6 +225,26 @@ class chieff_books extends CModule {
             $res = DeleteDirFilesEx("/bitrix/components/" . $this->MODULE_ID);
         if (!$res)
             $resMsg = Loc::getMessage("CHIEFF_BOOKS_UNINSTALL_ERROR_FILES_COM");
+        if ($resMsg) {
+            $this->setResponse(false, $resMsg);
+            return false;
+        }
+        $this->setResponse(true);
+        return true;
+    }
+
+    // Опциональное удаление из папки local
+    function unInstallFilesLocal() {
+        $res = true;
+        $resMsg = "";
+        DeleteDirFiles(
+            __DIR__ . "/admin",
+            $_SERVER["DOCUMENT_ROOT"] . "/bitrix/admin"
+        );
+        if (is_dir($this->COMPONENTS_PATH . "/" . $this->MODULE_ID))
+            $res = DeleteDirFilesEx("/local/components/" . $this->MODULE_ID);
+        if (!$res)
+            $resMsg = Loc::getMessage("CHIEFF_CURRENCIES_UNINSTALL_ERROR_FILES_COM");
         if ($resMsg) {
             $this->setResponse(false, $resMsg);
             return false;

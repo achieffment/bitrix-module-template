@@ -162,7 +162,7 @@ if ($ID > 0) {
     $aMenu[] = array(
         "TEXT"  => "Удалить",
         "TITLE" => "Удалить",
-        "LINK"  => "javascript:if(confirm('" . "Подтвердить удаление?" . "')) " . "window.location='chieff_books_list.php?ID=" . $ID . "&action=delete⟨=" . LANG . "&" . bitrix_sessid_get() . "';",
+        "LINK"  => "javascript:if(confirm('" . "Подтвердить удаление?" . "')) " . "window.location='chieff_books_list.php?ID=" . $ID . "&action=delete&lang=" . LANG . "&" . bitrix_sessid_get() . "';",
         "ICON"  => "btn_delete",
     );
     $aMenu[] = array("SEPARATOR"=>"Y");

@@ -2,13 +2,14 @@
 
 if ($this->checkModule()) {
 
-    $APPLICATION->SetTitle("Скелет модуля - Модуль книг - Компонент");
+    if ($arParams["SET_TITLE"] == "Y")
+        $APPLICATION->SetTitle("Скелет модуля - Модуль книг - Компонент");
 
     echo "Массив параметров: " . "<br>";
     $this->printArray($arParams); // Также доступен во всех остальных местах
 
     echo "Пример с постраничной навигацией: " . "<br>";
-    $nav = new \Bitrix\Main\UI\PageNavigation("navnavnav");
+    $nav = new \Bitrix\Main\UI\PageNavigation("page");
     $nav->allowAllRecords(true) // Отобразить кнопку показать всё
         ->setPageSize(1) // Размер страницы
         ->initFromUri();

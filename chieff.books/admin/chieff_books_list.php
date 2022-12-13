@@ -20,8 +20,7 @@ $lAdmin = new CAdminList($sTableID, $oSort);
 
 // Настроим фильтрацию списка
 // Проверку значений фильтра для удобства вынесем в отдельную функцию
-function CheckFilter()
-{
+function CheckFilter() {
     global $FilterArr, $lAdmin;
     // У нас есть поле даты, для которого сделаны 2 отдельных фильтра, их выпишем отдельно
     $str = "";
@@ -78,7 +77,11 @@ if (CheckFilter()) {
         $arFilter["AUTHOR_ID"] = $find_author_id;
     if ($find_description)
         $arFilter["DESCRIPTION"] = $find_description;
-    if ($find_timestamp_x_1 && $find_timestamp_x_2) {
+    if ($find_timestamp_x_1 && !$find_timestamp_x_2)
+        $arFilter[">=TIME_ARRIVAL"] = $find_timestamp_x_1;
+    else if (!$find_timestamp_x_1 && $find_timestamp_x_2)
+        $arFilter["<TIME_ARRIVAL"] = $find_timestamp_x_2;
+    else if ($find_timestamp_x_1 && $find_timestamp_x_2) {
         $arFilter[">=TIME_ARRIVAL"] = $find_timestamp_x_1;
         $arFilter["<TIME_ARRIVAL"]  = $find_timestamp_x_2;
     }
@@ -152,8 +155,7 @@ if (($arID = $lAdmin->GroupAction()) && $POST_RIGHT == "W") {
             case "delete":
                 @set_time_limit(0);
                 $DB->StartTransaction();
-                if(\chieff\books\BookTable::Delete($ID)->isSuccess())
-                {
+                if(!\chieff\books\BookTable::Delete($ID)->isSuccess()) {
                     $DB->Rollback();
                     $lAdmin->AddGroupError("Ошибка удаления", $ID);
                 }
@@ -405,8 +407,8 @@ $oFilter = new CAdminFilter(
         "RELEASED",
         "ISBN",
         "AUTHOR_ID",
-        "TIME_ARRIVAL",
         "DESCRIPTION",
+        "TIME_ARRIVAL",
     )
 );
 // Выведем фильтр

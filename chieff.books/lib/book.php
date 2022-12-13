@@ -7,7 +7,7 @@ namespace chieff\books;
 use \Bitrix\Main\Entity;
 use \Bitrix\Main\Type;
 
-// Имя файла задано book, но подключаться он сможет даже при условии, что класс называется не Book, а BookTable, но в ряде случаев все равно нужно будет использовать Book, например при регистрации событий
+// Имя должно обязательно содержать Table, название файла не обязательно
 class BookTable extends Entity\DataManager {
 
     // Название таблицы в базе данных:
