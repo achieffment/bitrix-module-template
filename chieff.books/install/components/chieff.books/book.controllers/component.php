@@ -5,9 +5,7 @@ if ($this->checkModule()) {
     if ($arParams["SET_TITLE"] == "Y")
         $APPLICATION->SetTitle("Скелет модуля - Модуль книг - Компонент с использованием контроллеров");
 
-    $elementsCount = ($arParams["PAGER_COUNT"]) ? $arParams["PAGER_COUNT"] : 5;
-
-    $arResult["ITEMS"] = $this->getAll($elementsCount);
+    $arResult["ITEMS"] = $this->getAll();
 
     // Подключим шаблон
     $this->IncludeComponentTemplate();

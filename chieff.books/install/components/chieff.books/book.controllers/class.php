@@ -20,15 +20,11 @@ class Book extends CBitrixComponent implements Controllerable {
     }
 
     function getAll($limit = 0) {
-        $params = array(
+        return BookTable::getList(array(
             "select" => array("ID", "NAME_BOOK" => "NAME"),
             "filter" => array(),
             "order"  => array("ID" => "DESC"),
-        );
-        if ($limit)
-            $params["limit"] = $limit;
-        $result = BookTable::getList($params);
-        return $result->fetchAll();
+        ))->fetchAll();
     }
 
     // Контроллеры необходимы, когда нужно выполнить какую-то логику через AJAX
