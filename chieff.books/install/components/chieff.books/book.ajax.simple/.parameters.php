@@ -6,7 +6,7 @@ $arComponentParameters = Array(
             "PARENT"  => "BASE",
             "NAME"    => "Количество элементов для вывода",
             "TYPE"    => "STRING",
-            "DEFAULT" => 10,
+            "DEFAULT" => 5,
         ),
         "AJAX_MODE" => array(),
         "SET_TITLE" => array(),

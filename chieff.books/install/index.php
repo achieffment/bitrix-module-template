@@ -11,6 +11,7 @@ use \Bitrix\Main\Application;
 use \Bitrix\Main\ModuleManager;
 use \Bitrix\Main\EventManager;
 use \Bitrix\Main\Config\Option;
+use \Bitrix\Main\Type;
 
 Loc::loadMessages(__FILE__);
 
@@ -112,13 +113,14 @@ class chieff_books extends CModule {
         // Айди модуля к которому относится регистрируемый обработчик (из какого модуля берется класс) (нужно если необходимо связать 2 модуля, если используем один, то дублируем поле с первым)
         // Класс обработчика
         // Метод обработчика
-        EventManager::getInstance()->registerEventHandler(
-            $this->MODULE_ID,
-            "\chieff\books\Book::OnBeforeAdd",
-            $this->MODULE_ID,
-            "\chieff\books\Event",
-            'eventHandler'
-        );
+        // (Отключил, чтобы не мешал)
+        // EventManager::getInstance()->registerEventHandler(
+        //     $this->MODULE_ID,
+        //     "\chieff\books\Book::OnBeforeAdd",
+        //     $this->MODULE_ID,
+        //     "\chieff\books\Event",
+        //     'eventHandler'
+        // );
     }
 
     // Копирование файлов
@@ -196,21 +198,110 @@ class chieff_books extends CModule {
         );
     }
 
+    // Заполнение таблиц тестовыми данными
+    function addTestData() {
+        Loader::includeModule($this->MODULE_ID);
+        $active   = "Y";
+        $types    = Array('Техническая литература', 'Художественная литература', 'Научная литература');
+        $name     = "Тестовая книга";
+        $time_arrival = date("d.m.Y H:i:s");
+        $description  = "Описание тестовой книги";
+        for ($i = 0; $i < 10; $i++) {
+            $result = \chieff\books\BookTable::add(
+                array(
+                    "ACTIVE"       => $active,
+                    "TYPE"         => $types[rand(0, count($types) - 1 )],
+                    "NAME"         => $name . " " . $i,
+                    "RELEASED"     => $i,
+                    "ISBN"         => $i,
+                    "AUTHOR_ID"    => rand(0, 2),
+                    "TIME_ARRIVAL" => new Type\DateTime($time_arrival),
+                    "DESCRIPTION"  => $description . " " . $i,
+                )
+            );
+            $result = $this->checkAddResult($result);
+            if (is_array($result) && !$result[0])
+                return $result[1];
+            elseif (!is_array($result))
+                return "Не удалось определить результат";
+        }
+        $name = "Имя тестового автора";
+        $lastName = "Фамилия тестового автора";
+        for ($i = 0; $i < 3; $i++) {
+            $result = \chieff\books\AuthorTable::add(
+                array(
+                    "NAME"      => $name . " " . $i,
+                    "LAST_NAME" => $lastName . " " . $i,
+                )
+            );
+            $result = $this->checkAddResult($result);
+            if (is_array($result) && !$result[0])
+                return $result[1];
+            elseif (!is_array($result))
+                return "Не удалось определить результат";
+        }
+        return true;
+    }
+
+    // Для удобства проверки результата
+    function checkAddResult($result) {
+        if ($result->isSuccess()) {
+            return [true, $result->getId()];
+        }
+        return [false, $result->getErrorMessages()];
+    }
+
     // Основная функция установки, должна называться именно так, поэтапно производим установку нашего модуля
     function DoInstall() {
         global $APPLICATION;
+
+        // Пример с установкой в один шаг:
         // Если необходимо использовать ORM сущности при установке (например для создания таблицы в бд), то нужно регистрировать его до вызова создания таблиц и т.п.
         // Иначе не сможем использовать неймспейсы
-        ModuleManager::registerModule($this->MODULE_ID);
-        $this->installDB();
-        $this->installEvents();
-        $this->installAgents();
-        if (!$this->installFiles())
-            $APPLICATION->ThrowException($this->arResponse["MESSAGE"]);
-        if (file_exists($_SERVER["DOCUMENT_ROOT"] . "/local/modules/chieff.books/install/step.php"))
-            $APPLICATION->IncludeAdminFile(Loc::getMessage("CHIEFF_BOOKS_INSTALL_TITLE"), $_SERVER["DOCUMENT_ROOT"] . "/local/modules/chieff.books/install/step.php");
-        else
-            $APPLICATION->IncludeAdminFile(Loc::getMessage("CHIEFF_BOOKS_INSTALL_TITLE"), $_SERVER["DOCUMENT_ROOT"] . "/bitrix/modules/chieff.books/install/step.php");
+        // ModuleManager::registerModule($this->MODULE_ID);
+        // $this->installDB();
+        // $this->installEvents();
+        // $this->installAgents();
+        // if (!$this->installFiles())
+        //     $APPLICATION->ThrowException($this->arResponse["MESSAGE"]);
+        // if (file_exists($_SERVER["DOCUMENT_ROOT"] . "/local/modules/chieff.books/install/step.php"))
+        //     $APPLICATION->IncludeAdminFile(Loc::getMessage("CHIEFF_BOOKS_INSTALL_TITLE"), $_SERVER["DOCUMENT_ROOT"] . "/local/modules/chieff.books/install/step.php");
+        // else
+        //     $APPLICATION->IncludeAdminFile(Loc::getMessage("CHIEFF_BOOKS_INSTALL_TITLE"), $_SERVER["DOCUMENT_ROOT"] . "/bitrix/modules/chieff.books/install/step.php");
+
+        // Пример с установкой в несколько шагов:
+        // Получаем контекст и из него запросы
+        $context = Application::getInstance()->getContext();
+        $request = $context->getRequest();
+        // Проверяем какой сейчас шаг, если он не существует или меньше 2, то выводим первый шаг установки
+        if ($request["step"] < 2) {
+            if (file_exists($_SERVER["DOCUMENT_ROOT"] . "/local/modules/chieff.books/install/step1.php"))
+                $APPLICATION->IncludeAdminFile(Loc::getMessage("CHIEFF_BOOKS_INSTALL_TITLE"), $_SERVER["DOCUMENT_ROOT"] . "/local/modules/chieff.books/install/step1.php");
+            else
+                $APPLICATION->IncludeAdminFile(Loc::getMessage("CHIEFF_BOOKS_INSTALL_TITLE"), $_SERVER["DOCUMENT_ROOT"] . "/bitrix/modules/chieff.books/install/step1.php");
+        } elseif ($request["step"] == 2) {
+            // Если шаг второй, то приступаем к установке
+            // Если необходимо использовать ORM сущности при установке (например для создания таблицы в бд), то нужно регистрировать его до вызова создания таблиц и т.п.
+            // Иначе не сможем использовать неймспейсы
+
+            // Глянуть все языковые константы по установке и удалению модулей - https://github.com/devsandk/bitrix_utf8/blob/master/bitrix/modules/main/lang/ru/admin/partner_modules.php
+
+            ModuleManager::registerModule($this->MODULE_ID);
+            $this->installDB();
+            $this->installEvents();
+            $this->installAgents();
+            if (!$this->installFiles())
+                $APPLICATION->ThrowException($this->arResponse["MESSAGE"]);
+            if ($request["add_data"] == "Y") {
+                $result = $this->addTestData();
+                if ($result !== true)
+                    $APPLICATION->ThrowException($this->arResponse["MESSAGE"]);
+            }
+            if (file_exists($_SERVER["DOCUMENT_ROOT"] . "/local/modules/chieff.books/install/step2.php"))
+                $APPLICATION->IncludeAdminFile(Loc::getMessage("CHIEFF_BOOKS_INSTALL_TITLE"), $_SERVER["DOCUMENT_ROOT"] . "/local/modules/chieff.books/install/step2.php");
+            else
+                $APPLICATION->IncludeAdminFile(Loc::getMessage("CHIEFF_BOOKS_INSTALL_TITLE"), $_SERVER["DOCUMENT_ROOT"] . "/bitrix/modules/chieff.books/install/step2.php");
+        }
     }
 
     // Удаление файлов
@@ -295,7 +386,7 @@ class chieff_books extends CModule {
             // Если шаг второй, то приступаем к удалению
             $this->unInstallEvents();
             $this->unInstallAgents();
-            if ($request["savedata"] != "Y")
+            if ($request["save_data"] != "Y")
                 $this->unInstallDB();
             if (!$this->unInstallFiles())
                 $APPLICATION->ThrowException($this->arResponse["MESSAGE"]);

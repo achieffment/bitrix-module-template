@@ -20,7 +20,7 @@ if (!check_bitrix_sessid())
     <p><?=Loc::getMessage("MOD_UNINST_SAVE")?></p>
     <!-- MOD_UNINST_SAVE - системная языковая переменная -->
     <!-- MOD_UNINST_SAVE_TABLES - системная языковая переменная -->
-    <p><input type="checkbox" name="savedata" id="savedata" value="Y" checked><label for="savedata"><?=Loc::getMessage("MOD_UNINST_SAVE_TABLES")?></label></p>
+    <p><input type="checkbox" name="save_data" id="save_data" value="Y" checked><label for="save_data"><?=Loc::getMessage("MOD_UNINST_SAVE_TABLES")?></label></p>
     <!-- MOD_UNINST_DEL - системная языковая переменная -->
     <input type="submit" name="" value="<?=Loc::getMessage("MOD_UNINST_DEL")?>">
 </form>
