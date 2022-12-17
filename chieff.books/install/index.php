@@ -295,7 +295,7 @@ class chieff_books extends CModule {
             if ($request["add_data"] == "Y") {
                 $result = $this->addTestData();
                 if ($result !== true)
-                    $APPLICATION->ThrowException($this->arResponse["MESSAGE"]);
+                    $APPLICATION->ThrowException($result);
             }
             if (file_exists($_SERVER["DOCUMENT_ROOT"] . "/local/modules/chieff.books/install/step2.php"))
                 $APPLICATION->IncludeAdminFile(Loc::getMessage("CHIEFF_BOOKS_INSTALL_TITLE"), $_SERVER["DOCUMENT_ROOT"] . "/local/modules/chieff.books/install/step2.php");
