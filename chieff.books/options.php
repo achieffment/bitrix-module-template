@@ -130,12 +130,13 @@ $tabControl->Begin();
 $tabControl->End();
 
 // Пример получения значения из настроек
-//$op = \Bitrix\Main\Config\Option::get(
+// $op = \Bitrix\Main\Config\Option::get(
 //    "chieff.books", // ID модуля. Обязательный.
 //    "field_text", // Имя параметра. Обязательный.
 //     "", // Возвращается значение по умолчанию, если значение не задано. Значение по умолчанию. Если default_value не задан, то значение для default_value будет браться из массива с именем ${module_id."_default_option"} заданного в файле /bitrix/modules/module_id/default_option.php.
 //    false // ID сайта, если значение параметра различно для разных сайтов.
-//);
-//\Bitrix\Main\Config\Option::getForModule(chieff.books); // Вернет все настройки
+// );
+// \Bitrix\Main\Config\Option::getForModule(chieff.books); // Вернет все настройки
+// Остальные команды https://dev.1c-bitrix.ru/api_d7/bitrix/main/config/option/index.php
 
 ?>

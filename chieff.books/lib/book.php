@@ -142,4 +142,23 @@ class BookTable extends Entity\DataManager {
 //        return $result;
 //    }
 
+    // Очистка тегированного кеша при изменении данных данной сущности
+
+    public static function onAfterAdd(Entity\Event $event) {
+        BookTable::clearCache();
+    }
+
+    public static function onAfterUpdate(Entity\Event $event) {
+        BookTable::clearCache();
+    }
+
+    public static function onAfterDelete(Entity\Event $event) {
+        BookTable::clearCache();
+    }
+
+    public function clearCache() {
+        global $CACHE_MANAGER;
+        $CACHE_MANAGER->clearByTag('books_tag');
+    }
+
 }

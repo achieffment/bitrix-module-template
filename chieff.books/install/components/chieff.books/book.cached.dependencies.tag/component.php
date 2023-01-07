@@ -15,7 +15,7 @@ if ($this->checkModule()) {
         global $CACHE_MANAGER; // или $taggedCache = \Bitrix\Main\Application::getInstance()->getTaggedCache();
         $CACHE_MANAGER->StartTagCache($cachePath);
         // Помечаем кеш своим тегом
-        $CACHE_MANAGER->RegisterTag("my_custom_tag");
+        $CACHE_MANAGER->RegisterTag("books_tag");
         $arResult["ITEMS"] = $this->getAll();
         // Если что-то пошло не так и решили кеш не записывать
         $cacheInvalid = false;
@@ -25,6 +25,7 @@ if ($this->checkModule()) {
         $CACHE_MANAGER->EndTagCache();
         $this->IncludeComponentTemplate();
     }
+
     // Присвоили тег кешу my_custom_tag
     // Чтобы привязать к ORM нужно прописать событие в init.php, или в самой описании сущности, или создать событие при установке модуля
     // Пример для init.php
